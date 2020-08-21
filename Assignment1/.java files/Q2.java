@@ -1,0 +1,63 @@
+package com.company;
+import java.io.*;
+import java.util.*;
+
+public class Q2 {
+
+    public static String addStars(String str) {
+        char c = str.charAt(0);
+
+        String smallAns = new String();
+        smallAns = String.valueOf(c);
+
+        for(int i = 1;i < str.length(); ++i ) {
+            smallAns = smallAns + "*";
+        }
+        return smallAns;
+    }
+
+    public static String Solve(String str, Vector<String> v_ans) {
+        String[] words = str.split("\\W+"); //split across all types of punctuation
+
+        String ansString = new String();
+
+        for(String curr : words) {
+            boolean flag = false;
+
+            for(String it : v_ans) {
+
+                if(curr.equals(it)) {
+                    //System.out.println("in");
+                    ansString = ansString +addStars(curr) +  " ";
+                    flag = true;
+
+                }
+            }
+            if(flag == false) {
+                ansString = ansString + curr + " ";
+            }
+
+        }
+        return ansString;
+    }
+
+
+    public static void main(String [] args) {
+        
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Enter the paragraph that you want to edit :- ");
+        String s = scan.nextLine();
+        System.out.println("Number of Words you want to edit");
+        int n = scan.nextInt();
+        Vector<String> v_ans = new Vector<String>();
+        for(int i=0;i<n;i++)
+        {
+            String sample = scan.next();
+            v_ans.add(sample);
+        }
+
+        String ans = Solve(s, v_ans);
+
+        System.out.println("Output:\n"+ ans);
+    }
+}
