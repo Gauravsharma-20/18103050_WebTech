@@ -38,7 +38,9 @@ public class Main {
         // Getting Url
         // part4_A(doc);
         // Focused Crawler
-        part4_BANDC(doc, use);
+        //part4_BANDC(doc, use);
+        // PDF
+        part4_D(doc,use);
         System.out.println("FINISHED");
     }
 
@@ -182,5 +184,56 @@ public class Main {
             e.printStackTrace();
         }
 
+    }
+
+    // PDF
+    public static void part4_D(Document doc, String use) {
+        String pdfFileName = "Pdf.csv";
+        File pdfFile = new File(pdfFileName);
+
+        ArrayList<String> currLink = new ArrayList<String>();
+        HashSet<String> visitedLink = new HashSet<String>();
+
+        try {
+            FileWriter pdfOutputFile = new FileWriter(pdfFile);
+            CSVWriter pdfWriter = new CSVWriter(pdfOutputFile);
+
+            // HEADER
+            String[] currStrPdf = { "PDF Link" };
+            pdfWriter.writeNext(currStrPdf);
+            // Defaults
+            String currUse = use;
+            Document currDoc = doc;
+            currLink.add(currUse);
+            for (int qn = 0; qn < currLink.size() && qn < 157; qn++) {
+                // System.out.print(qn + " ");
+                use = currLink.get(qn);
+                currDoc = Jsoup.connect(currUse).get();
+                // visited
+                visitedLink.add(currStrPdf[0]);
+                Elements links = currDoc.select("a[href]");
+                for (Element link : links) {
+                    currStrPdf[0] = link.attr("href");
+                    if (link.text().length() == 0) {
+                        continue;
+                    }
+                    if (currStrPdf[0].startsWith("/")) {
+                        currStrPdf[0] = currUse + currStrPdf[0];
+                    }
+                    if ((!visitedLink.contains(currStrPdf[0]))) {
+                        if ((currStrPdf[0].endsWith(".pdf"))) {
+                            pdfWriter.writeNext(currStrPdf);
+                        }
+                        if (!currLink.contains(currStrPdf[0])) {
+                            currLink.add(currStrPdf[0]);
+                        }
+                    }
+                }
+            }
+            // Writer Close
+            pdfWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
