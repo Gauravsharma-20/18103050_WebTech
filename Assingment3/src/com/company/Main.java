@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 //Jsoup document other one doesn't work even after type casting
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import javax.print.Doc;
 import java.io.File;
 import java.io.FileWriter;
@@ -22,7 +21,7 @@ public class Main {
         // write your code here
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter\n1: to use http://pec.ac.in\n2:To use Some other Link");
-        int input = 1;// scan.nextInt();
+        int input = scan.nextInt();
         String use;
         if (input == 1) {
             use = def;
@@ -33,12 +32,13 @@ public class Main {
         // It sends the request (http request) for the URL supplied.
         // Get the page and extract all the text and html tags present in the page.
         Document doc = Jsoup.connect(use).get();
+
         // Getting Text
-        // part3(doc);
+        part3(doc);
         // Getting Url
-        // part4_A(doc);
+        part4_A(doc);
         // Focused Crawler
-        //part4_BANDC(doc, use);
+        part4_BANDC(doc, use);
         // PDF
         part4_D(doc,use);
         System.out.println("FINISHED");
@@ -79,8 +79,6 @@ public class Main {
     // URL
     public static void part4_A(Document doc) {
         String title = doc.title();
-        // System.out.println("title : " +title);
-        // System.out.println(doc);//HTML page
         String fileName = "Text_Urls.csv";
         File file = new File(fileName);
         try {
