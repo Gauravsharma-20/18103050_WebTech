@@ -11,6 +11,8 @@ import javax.print.Doc;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class Main {
@@ -33,9 +35,10 @@ public class Main {
         Document doc = Jsoup.connect(use).get();
         // Getting Text
         // part3(doc);
-        //Getting Url
-        part4_A(doc);
-        
+        // Getting Url
+        // part4_A(doc);
+        // Focused Crawler
+        part4_BANDC(doc, use);
         System.out.println("FINISHED");
     }
 
@@ -102,4 +105,82 @@ public class Main {
         }
     }
 
+    // FOCUSED CRAWLER
+    public static void part4_BANDC(Document doc, String use) {
+        String focusedUrlFileName = "Focused_Text_Urls.csv";
+        String focusedTagFileName = "Focused_Tag_Text.csv";
+        File TagFile = new File(focusedTagFileName);
+        File UrlFile = new File(focusedUrlFileName);
+
+        ArrayList<String> currLink = new ArrayList<>();
+        HashSet<String> visitedLink = new HashSet<>();
+
+        try {
+            FileWriter tagOutputFile = new FileWriter(TagFile);
+            CSVWriter tagWriter = new CSVWriter(tagOutputFile);
+            FileWriter urlOutputFile = new FileWriter(UrlFile);
+            CSVWriter urlWriter = new CSVWriter(urlOutputFile);
+
+            // HEADER
+            String[] currStrTag = { "Tag", "Text" };
+            String[] currStrUrl = { "Text", "Link" };
+            tagWriter.writeNext(currStrTag);
+            urlWriter.writeNext(currStrUrl);
+            // title tag
+            currStrTag[0] = "title";
+            currStrTag[1] = doc.title();
+            tagWriter.writeNext(currStrTag);
+            // Defaults
+            String[] tag = { "p", "h1", "h2", "h3", "h4", "h5", "h6" };
+            String currUse = use;
+            Document currDoc = doc;
+            currLink.add(currUse);
+            for (int qn = 0; qn < currLink.size() && qn < 157; qn++) {
+                System.out.print(qn + " ");
+                use = currLink.get(qn);
+                currDoc = Jsoup.connect(currUse).get();
+                // visited
+                visitedLink.add(currStrUrl[1]);
+                Elements links = currDoc.select("a[href]");
+                // URL
+                for (Element link : links) {
+                    currStrUrl[1] = link.attr("href");
+                    currStrUrl[0] = link.text();
+                    if (link.text().length() == 0) {
+                        continue;
+                    }
+                    if (currStrUrl[1].startsWith("/")) {
+                        currStrUrl[1] = currUse + currStrUrl[1];
+                    }
+                    if ((!(visitedLink.contains(currStrUrl[1])))) {
+                        if (!currLink.contains(currStrUrl[1])) {
+                            currLink.add(currStrUrl[1]);
+                        }
+                        if ((currStrUrl[1].toLowerCase().contains("faculty"))) {
+                            urlWriter.writeNext(currStrUrl);
+                        }
+                    }
+                }
+                // TEXT
+                for (int i = 0; i < tag.length; i++) {
+                    Elements textLinks = currDoc.select(tag[i]);
+                    // URL
+                    for (Element link : textLinks) {
+                        currStrTag[1] = link.text();
+                        currStrTag[0] = tag[i];
+                        if (currStrTag[1].length() == 0) {
+                            continue;
+                        }
+                        tagWriter.writeNext(currStrTag);
+                    }
+                }
+            }
+            // Writer Close
+            tagWriter.close();
+            urlWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
