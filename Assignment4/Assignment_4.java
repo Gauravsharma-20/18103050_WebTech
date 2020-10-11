@@ -5,6 +5,18 @@ import java.util.Scanner;
 
 public class Assignment_4 {
 
+    public static class Pair {
+        public int first;
+        public Boolean second;
+        Pair(int a,Boolean b){
+            this.first = a;
+            this.second = b;
+        }
+    }
+
+    public static int[] X = {-1,0,1,0};
+    public static int[] Y = {0,1,0,-1};
+
     public static void main(String [] args) {
         Scanner scan = new Scanner(System.in);
         int n = scan.nextInt();
@@ -21,25 +33,101 @@ public class Assignment_4 {
                 arr[i][j] = data.charAt(j);
             }
         }
-        
-        //Greedy Solution 
+        /* 
+        //Greedy Solution - Fails for sample case too
         System.out.println(Question_1_Greedy(arr,n,m));
 
-        //Continuous Segment and Vertical Lines 
+        //Continuous Segment and Vertical Lines (Mathematical Approach) - Fails for special edge cases only
         System.out.println(Question_1(arr,n,m));
+        */
+
+        //Solve(DFS) - Handles all possible cases.
+        System.out.println(solve(arr,n,m));
+
     }
 
-    public static int[] X = { -1, 0, 1, 0 };
-    public static int[] Y = { 0, 1, 0, -1 };
+    /*
+    [Since only the number of changes are required we can just check that instead of actually replacing the letters.
+     we have 22 probable replacement for a letter in even in the worst case, that ensures there will always be a solution.]
+    */
+    public static int solve(char[][] arr,int n,int m){
+        if(m<2||n<1){
+            return -1;
+        }
+        boolean[][] visited = new boolean[n][m];
+        for(boolean[] row:visited) {
+            Arrays.fill(row,false);
+        }
+       int finalAns = 0;
+        for(int i=0;i<n;i++) {
+            for(int j=0;j<m;j++) {
+                if (!visited[i][j]) {
+                    //first-> val, second->change_flag
+                    visited[i][j] = true;
+                    Pair Ans = new Pair(0, false);
+                    for (int z = 0; z < 4; z++) {
+                        int newX = i + X[z], newY = j + Y[z];
+                        if (validPosition(newX,newY,n,m)&&(arr[newX][newY] == arr[i][j])) {
+                                Pair smallAns = DFS(arr, newX, newY, n, m, visited);
+                                Ans.first += smallAns.first;
+                                Ans.second = Ans.second || smallAns.second;
+                        }
+                    }
+                    finalAns += Ans.second ? Ans.first + 1 : Ans.first;
+                }
+            }
+        }
+        return finalAns;
+    }
 
+    public static boolean validPosition(int i,int j,int n,int m) {
+        if (i < n && i > -1 && j > -1 && j < m) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Pair DFS(char[][] arr,int i,int j,int n,int m,boolean[][] visited) {
+        //check for no neighbours
+        boolean currNeighbourFlag = false;
+        for (int z = 0; z < 4; z++) {
+            int newX = i + X[z], newY = j + Y[z];
+            if (validPosition(newX, newY, n, m)&&!visited[newX][newY]) {
+                if (arr[newX][newY] == arr[i][j]) {
+                    currNeighbourFlag = true;
+                }
+            }
+        }
+        visited[i][j] = true;
+        //Leaf Node
+        if(!currNeighbourFlag){
+            return new Pair(0,true);
+        }
+
+        //first-> val, second->change_flag
+        Pair Ans = new Pair(0, false);
+        for (int z = 0; z < 4; z++) {
+            int newX = i + X[z], newY = j + Y[z];
+            if (validPosition(newX,newY,n,m)&&!visited[newX][newY]&&(arr[newX][newY] == arr[i][j])) {
+                Pair smallAns = DFS(arr, newX, newY, n, m, visited);
+                Ans.first += smallAns.first;
+                Ans.second = Ans.second || smallAns.second;
+            }
+        }
+        if(Ans.second){
+            Ans.first += 1;
+        }
+        Ans.second = !Ans.second;
+        return Ans;
+    }
+
+    /* Previous Methods
     public static int Question_1(char[][] arr,int n,int m){
         if(m<2||n<1){
             return 0;
         }
         int ans = 0;
-
         //Positions to Check
-
         boolean[][] out = new boolean[n][m];
         //Make bool true-false out  matrix
         for(int i=0;i<n;i++){
@@ -165,7 +253,7 @@ public class Assignment_4 {
         }
         return ans;
     }
-     
+     */
 }
 /*
 4 4
