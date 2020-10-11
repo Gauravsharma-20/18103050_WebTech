@@ -3,7 +3,7 @@ package com.company;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Assignment_4 {
+public class Question1 {
 
     public static class Pair {
         public int first;
